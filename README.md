@@ -18,98 +18,84 @@ py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-Open http://127.0.0.1:8000 in your browser. Keep the PowerShell window running while using the application.   
+```
+
+Open http://127.0.0.1:8000 in your browser. Keep the PowerShell window running while using the application. 
 
 If PowerShell blocks activation:   
-
-PowerShell
+``
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
-Demo logins
-All demo passwords are factory123.
+``
 
-Admin: admin (admin)
+## Demo logins
 
-Salesman A: salesa (salesman)
+All demo passwords are `factory123`.
 
-Salesman B: salesb (salesman)
-
-Production: production (production)
-
-Auditor: auditor (auditor, read-only)
-
-Owner: owner (owner)
+- Admin: `admin` (`admin`)
+- Salesman A: `salesa` (`salesman`)
+- Salesman B: `salesb` (`salesman`)
+- Production: `production` (`production`)
+- Auditor: `auditor` (`auditor`, read-only)
+- Owner: `owner` (`owner`)
 
 This prototype uses demo credentials and must be hardened before public production deployment.
 
-Benchmark walkthrough
-Login as admin and click Reset benchmark to load the exact master data.
+## Benchmark walkthrough
 
-Record the 60 kg flour purchase at ₹45/kg.
+1. Login as admin and click *Reset benchmark* to load the exact master data.
+2. Record the 60 kg flour purchase at ₹45/kg.
+3. Login as production and create a Murukku 200 g run: flour 40 kg, oil 10.5 L, spice 1.2 kg, good output 188, damaged pouches 6, cartons 9.
+4. Login as Salesman A and submit 150 packets to Retailer A.
+5. Login as admin, approve, invoice and dispatch the order.
+6. Login as Salesman B and submit 120 packets to Distributor B. Admin approval is blocked for shortage.
+7. Record ₹4,000 against Retailer A's invoice.
+8. Add ₹1,200 labour and ₹600 gas/power to the production run (run details panel).
+9. Open Reports and export CSV / Excel / PDF.
 
-Login as production and create a Murukku 200 g run: flour 40 kg, oil 10.5 L, spice 1.2 kg, good output 188, damaged pouches 6, cartons 9.
+## Benchmark assumptions and notes
 
-Login as Salesman A and submit 150 packets to Retailer A.
+- The expected benchmark balances are reproduced: flour 120 kg; oil 19.5 L; spice 3.8 kg; pouches 306; cartons 21; finished goods 88 after dispatch.
+- Pouch closing stock is calculated as 500 opening minus 194 consumed = 306 (no pouch purchase is part of this scenario).
+- The 6 damaged pouches are included in consumption, so 194 pouches are issued in total.
+- Cartons: 30 minus 9 = 21.
+- The system records a production issue of 40 kg flour, 10.5 L oil, 1.2 kg spice, 194 pouches and 9 cartons. The scenario does not specify actual carton count per packet; 9 cartons is accepted as actual packaging usage.
+- Oil variance = (10.5 - 10) / 10 = +5%. Yield variance = (188 - 200) / 200 = -6%.
+- Tax is 5%. Tamil Nadu intra-state sales split into CGST 2.5% + SGST 2.5%. Karnataka interstate sales use IGST 5% if invoiced.
+- Weighted-average flour rate after purchase = (100×42 + 60×45) / 160 = ₹43.125/kg. Other opening valuation rates use the supplied benchmark rates.
+- Costing includes the consumed raw materials and packaging plus labour and gas/power, divided by good packets. With the benchmark rates, production cost is calculated by the app. This is a prototype approximation; freight, GST input credit, returns, and detailed overhead allocation are not modeled.
+- Orders are not invoiced or dispatched until sufficient finished goods exist. Partial dispatch is not implemented.
+- This is a demonstrator, not a certified GST accounting product. Invoice numbering, tax treatment, statutory formats, and security need professional review before real business use.
 
-Login as admin, approve, invoice and dispatch the order.
+## Implemented
 
-Login as Salesman B and submit 120 packets to Distributor B. Admin approval is blocked for shortage.
+- Enhanced dashboard with live monthly invoiced-sales trend, order-status distribution, raw-material balances and top-customer ranking.
+- Visible Logout action in the signed-in header; logout invalidates the current in-memory session token and clears the browser session.
+- Improved sales order entry with customer GST details, product pricing and a live estimated taxable value / GST / total preview.
+- Role-based demo login and role-specific navigation.
+- Product, customer, raw material and BOM masters seeded from benchmark.
+- Purchase receipt, BOM production run, planned-vs-actual variance, stock ledger.
+- Salesman order entry, admin approval, GST invoice PDF, dispatch and payment recording.
+- Owner dashboard, sales and stock reports, CSV/Excel/PDF exports.
+- Audit events for key operations.
 
-Record ₹4,000 against Retailer A's invoice.
+## Known gaps / next hardening steps
 
-Add ₹1,200 labour and ₹600 gas/power to the production run (run details panel).
+- Replace demo authentication with hashed passwords, secure sessions/JWT, CSRF protection and rate limiting.
+- Move SQLite to PostgreSQL for multi-user hosted deployment.
+- Implement offline-first PWA sync, partial dispatch, returns, supplier master UI, credit notes and full GST statutory reconciliation.
+- Add per-user audit history for all edits, immutable posted invoices, invoice cancellation via credit notes.
+- Add unit conversion catalogue, FEFO batch/expiry tracking, automated tests and deployment secrets. 
 
-Open Reports and export CSV / Excel / PDF.
 
-Benchmark assumptions and notes
-The expected benchmark balances are reproduced: flour 120 kg; oil 19.5 L; spice 3.8 kg; pouches 306; cartons 21; finished goods 88 after dispatch.
 
-Pouch closing stock is calculated as 500 opening minus 194 consumed = 306 (no pouch purchase is part of this scenario).
 
-The 6 damaged pouches are included in consumption, so 194 pouches are issued in total.
 
-Cartons: 30 minus 9 = 21.
 
-The system records a production issue of 40 kg flour, 10.5 L oil, 1.2 kg spice, 194 pouches and 9 cartons. The scenario does not specify actual carton count per packet; 9 cartons is accepted as actual packaging usage.
 
-Oil variance = (10.5 - 10) / 10 = +5%. Yield variance = (188 - 200) / 200 = -6%.
 
-Tax is 5%. Tamil Nadu intra-state sales split into CGST 2.5% + SGST 2.5%. Karnataka interstate sales use IGST 5% if invoiced.
 
-Weighted-average flour rate after purchase = (100×42 + 60×45) / 160 = ₹43.125/kg. Other opening valuation rates use the supplied benchmark rates.
 
-Costing includes the consumed raw materials and packaging plus labour and gas/power, divided by good packets. With the benchmark rates, production cost is calculated by the app. This is a prototype approximation; freight, GST input credit, returns, and detailed overhead allocation are not modeled.
 
-Orders are not invoiced or dispatched until sufficient finished goods exist. Partial dispatch is not implemented.
-
-This is a demonstrator, not a certified GST accounting product. Invoice numbering, tax treatment, statutory formats, and security need professional review before real business use.
-
-Implemented
-Enhanced dashboard with live monthly invoiced-sales trend, order-status distribution, raw-material balances and top-customer ranking.
-
-Visible Logout action in the signed-in header; logout invalidates the current in-memory session token and clears the browser session.
-
-Improved sales order entry with customer GST details, product pricing and a live estimated taxable value / GST / total preview.
-
-Role-based demo login and role-specific navigation.
-
-Product, customer, raw material and BOM masters seeded from benchmark.
-
-Purchase receipt, BOM production run, planned-vs-actual variance, stock ledger.
-
-Salesman order entry, admin approval, GST invoice PDF, dispatch and payment recording.
-
-Owner dashboard, sales and stock reports, CSV/Excel/PDF exports.
-
-Audit events for key operations.
-
-Known gaps / next hardening steps
-Replace demo authentication with hashed passwords, secure sessions/JWT, CSRF protection and rate limiting.
-
-Move SQLite to PostgreSQL for multi-user hosted deployment.
-
-Implement offline-first PWA sync, partial dispatch, returns, supplier master UI, credit notes and full GST statutory reconciliation.
-
-Add per-user audit history for all edits, immutable posted invoices, invoice cancellation via credit notes.
-
-Add unit conversion catalogue, FEFO batch/expiry tracking, automated tests and deployment secrets.
+ 
+    
