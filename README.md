@@ -53,7 +53,7 @@ This prototype uses demo credentials and must be hardened before public producti
 8. Add ₹1,200 labour and ₹600 gas/power to the production run (run details panel).
 9. Open Reports and export CSV / Excel / PDF.
 
-## Benchmark assumptions and notes
+## Benchmark assumptions 
 
 - The expected benchmark balances are reproduced: flour 120 kg; oil 19.5 L; spice 3.8 kg; pouches 306; cartons 21; finished goods 88 after dispatch.
 - Pouch closing stock is calculated as 500 opening minus 194 consumed = 306 (no pouch purchase is part of this scenario).
